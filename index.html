@@ -143,9 +143,12 @@
             <i class="fas fa-calendar-check card-icon"></i>
             <h4 class="card-title fw-bold">ระบบนัดหมายผู้เชี่ยวชาญ</h4>
             <p class="card-text text-muted mb-4">นัดหมายวันและเวลาเพื่อรับคำปรึกษาจากนักจิตวิทยา หรือผู้เชี่ยวชาญด้านสุขภาพใจ</p>
-            <button class="btn btn-secondary mt-auto py-2 rounded-pill fw-bold btn-pending">
-              อยู่ระหว่างดำเนินการ
-            </button>
+            
+            <!-- เปลี่ยนจากปุ่ม 'อยู่ระหว่างดำเนินการ' เป็นปุ่มเข้าสู่ระบบ -->
+            <a href="#" id="menu-2-btn" class="btn btn-theme mt-auto py-2 rounded-pill fw-bold">
+              เข้าสู่ระบบนัดหมาย
+            </a>
+            
             <!-- ส่วนที่เพิ่มเข้ามา: คำแนะนำการปิดแถบ Google -->
             <small class="text-muted mt-2 d-block" style="font-size: 0.75rem; line-height: 1.4;">
               <i class="fas fa-info-circle"></i> 
@@ -225,23 +228,28 @@
       return /FBAN|FBAV|Line/i.test(ua);
     }
 
-    // --- 2. ตั้งค่าลิงก์สำหรับเมนู DASS-21 ---
-    function setupMenu1Link() {
-      const btn = document.getElementById('menu-1-btn');
-      
-      // ลิงก์ปลายทาง (GAS ของระบบ DASS-21)
-      const targetUrl = 'https://script.google.com/a/macros/jc.tu.ac.th/s/AKfycbwTyHdZbna6Zv58zx-l_POSYjvUhKHevmMQfdDwxGt041brcyTvA8v_dWIWGTcgdc0fig/exec'; 
+    // --- 2. ตั้งค่าลิงก์สำหรับเมนูต่างๆ ---
+    function setupMenuLinks() {
+      // ลิงก์เมนู 1: DASS-21
+      const btn1 = document.getElementById('menu-1-btn');
+      const targetUrl1 = 'https://script.google.com/a/macros/jc.tu.ac.th/s/AKfycbwTyHdZbna6Zv58zx-l_POSYjvUhKHevmMQfdDwxGt041brcyTvA8v_dWIWGTcgdc0fig/exec'; 
 
-      // บังคับเปิด Safari หากเป็น iOS + In-App Browser
+      // ลิงก์เมนู 2: ระบบนัดหมาย
+      const btn2 = document.getElementById('menu-2-btn');
+      const targetUrl2 = 'https://script.google.com/a/macros/jc.tu.ac.th/s/AKfycbxXpfjtGqraPedjb0QCuHb5NRpUbx5kJfAz-o9DFMaErLjLCUphcNzSejmPU4YCjj7wSA/exec';
+
+      // เช็คและบังคับเปิด Safari หากเป็น iOS + In-App Browser สำหรับเมนู 1
       if (isIOS() && isInAppBrowser()) {
-        btn.href = 'x-safari-' + targetUrl;
+        btn1.href = 'x-safari-' + targetUrl1;
+        if(btn2) btn2.href = 'x-safari-' + targetUrl2;
       } else {
-        btn.href = targetUrl;
+        btn1.href = targetUrl1;
+        if(btn2) btn2.href = targetUrl2;
       }
     }
 
-    // --- 3. การทำงานเมื่อกดปุ่ม DASS-21 ---
-    document.getElementById('menu-1-btn').addEventListener('click', function(e) {
+    // --- 3. การทำงานเมื่อกดปุ่มเมนู (สร้างฟังก์ชันให้ใช้ซ้ำได้) ---
+    function handleMenuClick(e) {
       e.preventDefault(); 
       const targetUrl = this.href; 
 
@@ -261,9 +269,16 @@
       setTimeout(() => {
         window.location.href = targetUrl;
       }, 600);
-    });
+    }
 
-    // --- 4. การทำงานเมื่อกดปุ่มที่ยังไม่พร้อมใช้งาน (เมนู 2 และ 3) ---
+    // ผูก Event การคลิกให้กับปุ่มเมนู 1 และ 2
+    document.getElementById('menu-1-btn').addEventListener('click', handleMenuClick);
+    const menu2Btn = document.getElementById('menu-2-btn');
+    if(menu2Btn) {
+      menu2Btn.addEventListener('click', handleMenuClick);
+    }
+
+    // --- 4. การทำงานเมื่อกดปุ่มที่ยังไม่พร้อมใช้งาน (เมนู 3) ---
     const pendingBtns = document.querySelectorAll('.btn-pending');
     pendingBtns.forEach(btn => {
       btn.addEventListener('click', function(e) {
@@ -285,7 +300,7 @@
 
     // เรียกใช้งานเมื่อโหลดหน้าเสร็จ
     document.addEventListener("DOMContentLoaded", () => {
-      setupMenu1Link();
+      setupMenuLinks(); // เปลี่ยนชื่อฟังก์ชันเป็น setupMenuLinks
     });
   </script>
 </body>
